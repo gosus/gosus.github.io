@@ -213,7 +213,7 @@ h2 {
 }
 
 /* Name bounce & glow */
-#childName {
+#greeting {
   font-size: 2rem;
   color: #ffd700;  /* bright gold */
   margin-bottom: 10px;
