@@ -105,8 +105,10 @@ function updateTasks() {
       } else {
         taskDetailsDiv.textContent = activeTask.details;
       }
+      taskDetailsDiv.classList.add("show"); // slide/fade in
     } else {
       taskDetailsDiv.textContent = "";
+      taskDetailsDiv.classList.remove("show");
     }
     document.body.classList.remove("free-time");
     
@@ -121,6 +123,7 @@ function updateTasks() {
   } else {
     currentInfo.textContent = "No active task";
     taskDetailsDiv.textContent = "";
+    taskDetailsDiv.classList.remove("show");
     document.body.classList.add("free-time");
     lastActiveTaskName = "";
     playChime("free_chime.mp3");
