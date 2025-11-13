@@ -1,51 +1,213 @@
-/* Basic setup */
-html, body { height:100%; margin:0; overflow:hidden; font-family:"Poppins","Inter",sans-serif;}
-body { background:linear-gradient(180deg,#0b0d1a,#1a1c2f); color:#fff; display:flex; justify-content:center; align-items:flex-start; transition:background 1.5s ease;}
-#starfield, #confetti-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; background:transparent;}
-#dateTimeDisplay { position:fixed; top:12px; right:16px; font-size:1rem; background:rgba(0,0,0,0.3); padding:6px 12px; border-radius:8px; color:#fff; font-family:monospace; z-index:10;}
-main { width:min(720px,90%); margin-top:60px; text-align:center; z-index:2; position:relative; animation:fadeIn 1s ease forwards;}
-h1 { font-size:2.4rem; margin-bottom:8px; animation:float 3s ease-in-out infinite alternate; }
-h2 { font-size:1.3rem; color:rgba(255,255,255,0.8); margin-bottom:20px; }
-
-/* Timeline tasks */
-#timelineContainer { display:flex; justify-content:center; align-items:center; flex-direction:column; max-height:60vh; overflow-y:hidden; scroll-behavior:smooth; position:relative;}
-.task { width:90%; margin:10px 0; border-radius:14px; padding:15px 20px; text-align:left; box-shadow:0 0 25px rgba(255,255,255,0.05); transition:transform 0.6s ease, opacity 0.6s ease; display:flex; justify-content:space-between; align-items:center; opacity:0; }
-.task.active { transform:scale(1.2); opacity:1; z-index:5; animation:pulseGlow 3s ease-in-out infinite; }
-.task.past, .task.future { transform:scale(0.85); opacity:0.4; z-index:1; }
-.time { font-weight:600; }
-#currentInfo { margin-top:20px; font-size:1.2rem; opacity:0.9; transition:opacity 0.6s ease; }
-#loading { margin-top:10px; font-size:1rem; color:rgba(255,255,255,0.6); }
-#musicToggle { margin-top:20px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; background-color:rgba(255,255,255,0.15); color:#fff; transition: background 0.3s ease;}
-#musicToggle:hover { background-color:rgba(255,255,255,0.35); }
-
-/* Active task glow */
-.task .icon { margin-right:10px; display:inline-block; font-size:1.4rem; position:relative; transition:transform 0.3s ease; }
-.task.active .icon { animation:bounce 1s infinite; }
-@keyframes bounce { 0%{transform:translateY(0);}50%{transform:translateY(-5px);}100%{transform:translateY(0);} }
-.task .progress-container { width:100%; height:6px; background:rgba(255,255,255,0.2); border-radius:3px; margin-top:6px; overflow:hidden; }
-.task .progress-bar { width:0%; height:100%; background:rgba(255,255,255,0.8); border-radius:3px; transition:width 1s linear; }
-@keyframes pulseGlow { 0%{box-shadow:0 0 15px var(--glow-color, rgba(255,255,255,0.3));}50%{box-shadow:0 0 40px var(--glow-color, rgba(255,255,255,0.7));}100%{box-shadow:0 0 15px var(--glow-color, rgba(255,255,255,0.3));}}
-
-/* Responsive mobile */
-@media(max-width:768px){
-  #timelineContainer{ max-height:70vh; overflow-y:hidden; flex-direction:row; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
-  .task{ flex:0 0 70%; scroll-snap-align:center; margin:0 8px; font-size:1rem; }
-  .task.active{ transform:scale(1.4); box-shadow:0 0 40px rgba(255,255,255,0.4);}
-  .task.past, .task.future{ transform:scale(0.8); opacity:0.3; }
-  #currentInfo{ font-size:1.3rem; margin-top:15px; } 
-  h1{ font-size:2rem;} 
-  h2{ font-size:1.1rem;}
+/* --- Basic setup --- */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Poppins","Inter",sans-serif;
+  background: linear-gradient(180deg,#0b0d1a,#1a1c2f);
+  color: #fff;
 }
 
-/* Rainbow glow for free time */
-@keyframes rainbowGlow{ 0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;} }
-body.free-time{ background: linear-gradient(270deg,#ffb6c1,#add8e6,#90ee90,#fffacd,#ffa07a); background-size:800% 800%; animation: rainbowGlow 25s ease infinite; transition: background 2s ease-in-out; }
+body.free-time {
+  background: linear-gradient(270deg,#ffb6c1,#add8e6,#90ee90,#fffacd,#ffa07a);
+  background-size: 800% 800%;
+  animation: rainbowGlow 25s ease infinite;
+}
 
-/* Next-up bar */
-#nextUp{ position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:white; font-size:1.2em; font-weight:500; padding:12px 24px; border-radius:16px; transition:all 0.8s ease-in-out; opacity:0; z-index:50; backdrop-filter:blur(8px); box-shadow:0 0 12px rgba(0,0,0,0.3); display:flex; align-items:center; gap:10px;}
-#nextUp.show{ bottom:20px; opacity:1;}
-#nextUp .emoji{ font-size:1.4em; } 
+@keyframes rainbowGlow {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* --- Canvas --- */
+#starfield, #confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: transparent;
+}
+
+/* --- Top-right clock --- */
+#dateTimeDisplay {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  font-size: 1.5rem;
+  background: rgba(0,0,0,0.5);
+  padding: 8px 14px;
+  border-radius: 10px;
+  color: #fff;
+  z-index: 10;
+  font-family: monospace;
+}
+
+/* --- Main container --- */
+main {
+  width: min(720px, 90%);
+  margin-top: 60px;
+  text-align: center;
+  z-index: 2;
+  position: relative;
+  animation: fadeIn 1s ease forwards;
+}
+
+/* --- Headings --- */
+h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: float 3s ease-in-out infinite alternate;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 25px;
+}
+
+/* --- Timeline tasks --- */
+#timelineContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-height: 60vh;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.task {
+  width: 90%;
+  margin: 15px auto;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.4rem;
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0,0,0,0.7);
+  background: linear-gradient(145deg, rgba(var(--glow-color),0.8), rgba(var(--glow-color),0.6));
+  box-shadow: 0 0 25px rgba(0,0,0,0.2);
+  transition: transform 0.6s ease, opacity 0.6s ease, box-shadow 0.6s ease;
+}
+
+.task.active {
+  transform: scale(1.2);
+  opacity: 1;
+  z-index: 5;
+  animation: pulseGlow 3s ease-in-out infinite;
+  box-shadow: 0 0 35px rgba(var(--glow-color),0.9);
+}
+
+.task.past, .task.future {
+  transform: scale(0.85);
+  opacity: 0.5;
+  z-index: 1;
+  background: linear-gradient(145deg, rgba(var(--glow-color),0.4), rgba(var(--glow-color),0.3));
+}
+
+/* --- Progress bar --- */
+.task .progress-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.task .progress-bar {
+  width: 0%;
+  height: 100%;
+  background: rgba(255,255,255,0.9);
+  border-radius: 4px;
+  transition: width 1s linear;
+}
+
+/* --- Current info --- */
+#currentInfo {
+  margin-top: 25px;
+  font-size: 1.5rem;
+  opacity: 0.95;
+  transition: opacity 0.6s ease;
+}
+
+/* --- Loading message --- */
+#loading {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.6);
+}
+
+/* --- Music toggle --- */
+#musicToggle {
+  margin-top: 25px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: rgba(255,255,255,0.2);
+  color: #fff;
+  transition: background 0.3s ease;
+}
+#musicToggle:hover { background-color: rgba(255,255,255,0.35); }
+
+/* --- Active task glow animation --- */
+@keyframes pulseGlow {
+  0%{box-shadow:0 0 15px var(--glow-color, rgba(255,255,255,0.3));}
+  50%{box-shadow:0 0 40px var(--glow-color, rgba(255,255,255,0.7));}
+  100%{box-shadow:0 0 15px var(--glow-color, rgba(255,255,255,0.3));}
+}
+
+/* --- Next-Up bar --- */
+#nextUp {
+  position: fixed;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 500;
+  padding: 14px 28px;
+  border-radius: 18px;
+  transition: all 0.8s ease-in-out;
+  opacity: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#nextUp.show { bottom: 20px; opacity: 1; }
+#nextUp .emoji{ font-size: 1.6em; }
 #nextUp .label{ font-weight:bold; margin-left:4px; }
 
-/* Emoji progress ring */
-.task .icon svg{ position:absolute; top:-4px; left:-4px; width:36px; height:36px; transform:rotate(-90deg); pointer-events:none; }
+/* --- Responsive mobile --- */
+@media(max-width:768px){
+  #timelineContainer {
+    max-height: 70vh;
+    overflow-y: hidden;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .task {
+    flex: 0 0 70%;
+    scroll-snap-align: center;
+    margin: 0 10px;
+    font-size: 1.3rem;
+    padding: 18px;
+  }
+  .task.active { transform: scale(1.4); }
+  h1{ font-size: 2.5rem; }
+  h2{ font-size: 1.5rem; }
+  #currentInfo{ font-size: 1.4rem; margin-top: 20px; } 
+}
