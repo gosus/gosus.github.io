@@ -11,14 +11,19 @@
   <main>
     <h1 id="greeting">Hello!</h1>
     <h2 id="dayTitle"></h2>
-    <div id="timeline"></div>
+    <div id="timelineContainer">
+      <div id="timeline"></div>
+    </div>
     <div id="currentInfo"></div>
+    <div id="loading">Loading tasks...</div>
     <button id="musicToggle">🔊 Mute</button>
   </main>
+
   <audio id="bgMusic" loop>
     <source src="soft_piano_loop.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
+
   <script src="app.js"></script>
 </body>
 </html>

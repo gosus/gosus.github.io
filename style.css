@@ -32,23 +32,14 @@ main {
   animation: fadeIn 1s ease forwards;
 }
 
-h1 {
-  font-size: 2.4rem;
-  margin-bottom: 8px;
-  animation: float 3s ease-in-out infinite alternate;
-}
+h1 { font-size: 2.4rem; margin-bottom: 8px; animation: float 3s ease-in-out infinite alternate; }
+h2 { font-size: 1.3rem; color: rgba(255,255,255,0.8); margin-bottom: 20px; }
 
-h2 {
-  font-size: 1.3rem;
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 30px;
-}
-
-#timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  perspective: 800px;
+#timelineContainer {
+  max-height: 60vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  margin-bottom: 20px;
 }
 
 .task {
@@ -63,37 +54,22 @@ h2 {
   opacity: 0;
   transform: translateY(20px) rotateX(10deg);
   animation: slideIn 0.7s forwards;
+  color: white;
 }
 
 .task:nth-child(even) { animation-delay: 0.1s; }
 .task:nth-child(odd) { animation-delay: 0.2s; }
 
-.task.active {
-  transform: scale(1.03);
-  box-shadow: 0 0 40px rgba(255,255,255,0.5);
-  font-weight: bold;
-  animation: pulse 2s infinite ease-in-out;
-}
-
-.task.past {
-  opacity: 0.35;
-  filter: blur(0.5px);
-  transform: scale(0.98);
-}
-
+.task.active { transform: scale(1.03); box-shadow: 0 0 40px rgba(255,255,255,0.5); font-weight: bold; animation: pulse 2s infinite ease-in-out; }
+.task.past { opacity: 0.35; filter: blur(0.5px); transform: scale(0.98); }
 .task.future { opacity: 0.8; }
-
 .time { font-weight: 600; }
 
-#currentInfo {
-  margin-top: 40px;
-  font-size: 1.2rem;
-  opacity: 0.9;
-  transition: opacity 0.6s ease;
-}
+#currentInfo { margin-top: 20px; font-size: 1.2rem; opacity: 0.9; transition: opacity 0.6s ease; }
+#loading { margin-top: 10px; font-size: 1rem; color: rgba(255,255,255,0.6); }
 
 #musicToggle {
-  margin-top: 30px;
+  margin-top: 20px;
   padding: 8px 16px;
   font-size: 1rem;
   border: none;
@@ -104,16 +80,10 @@ h2 {
   transition: background 0.3s ease;
 }
 
-#musicToggle:hover {
-  background-color: rgba(255,255,255,0.35);
-}
+#musicToggle:hover { background-color: rgba(255,255,255,0.35); }
 
 /* Animations */
 @keyframes slideIn { to { opacity: 1; transform: translateY(0) rotateX(0); } }
-@keyframes pulse {
-  0% { box-shadow: 0 0 20px rgba(255,255,255,0.3); }
-  50% { box-shadow: 0 0 60px rgba(255,255,255,0.6); }
-  100% { box-shadow: 0 0 20px rgba(255,255,255,0.3); }
-}
+@keyframes pulse { 0% { box-shadow: 0 0 20px rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 60px rgba(255,255,255,0.6); } 100% { box-shadow: 0 0 20px rgba(255,255,255,0.3); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes float { 0% { transform: translateY(0px); } 100% { transform: translateY(6px); } }
