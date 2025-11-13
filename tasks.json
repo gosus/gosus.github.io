@@ -1,0 +1,17 @@
+{
+  "name": "Dhruv",
+  "days": [
+    {
+      "day": "Monday",
+      "tasks": [
+        { "from": "07:00", "to": "07:30", "task": "Breakfast", "rgb": "255,204,102" },
+        { "from": "16:00", "to": "16:30", "task": "Snack & Relax", "rgb": "240,128,128" },
+        { "from": "16:30", "to": "17:30", "task": "Maths Practice", "rgb": "65,105,225" },
+        { "from": "17:30", "to": "18:30", "task": "Physics Revision", "rgb": "72,61,139" },
+        { "from": "18:30", "to": "19:00", "task": "Dinner Break", "rgb": "60,179,113" },
+        { "from": "19:00", "to": "19:45", "task": "Music Practice", "rgb": "218,165,32" },
+        { "from": "19:45", "to": "20:15", "task": "Reading Time", "rgb": "255,182,193" }
+      ]
+    }
+  ]
+}
