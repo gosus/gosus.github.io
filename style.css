@@ -35,7 +35,7 @@ body.free-time {
   position: fixed;
   top: 12px;
   right: 16px;
-  font-size: 1.5rem;
+  font-size: 1.0rem;
   background: rgba(0,0,0,0.5);
   padding: 8px 14px;
   border-radius: 10px;
@@ -97,6 +97,7 @@ h2 {
 }
 
 .task.active {
+  text-align: center;
   transform: scale(1.2);
   opacity: 1;
   z-index: 5;
