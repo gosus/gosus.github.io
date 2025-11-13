@@ -1,16 +1,82 @@
-{
+x{
   "name": "Dhruv",
   "days": [
     {
       "day": "Monday",
       "tasks": [
-        { "from": "07:00", "to": "07:30", "task": "Breakfast", "rgb": "255,204,102" },
-        { "from": "16:00", "to": "16:30", "task": "Snack & Relax", "rgb": "240,128,128" },
-        { "from": "16:30", "to": "17:30", "task": "Maths Practice", "rgb": "65,105,225" },
-        { "from": "17:30", "to": "18:30", "task": "Physics Revision", "rgb": "72,61,139" },
-        { "from": "18:30", "to": "19:00", "task": "Dinner Break", "rgb": "60,179,113" },
-        { "from": "19:00", "to": "19:45", "task": "Music Practice", "rgb": "218,165,32" },
-        { "from": "19:45", "to": "20:15", "task": "Reading Time", "rgb": "255,182,193" }
+        { "from": "17:00", "to": "18:10", "task": "Nat Class", "rgb": "255,204,102" },
+        { "from": "18:45", "to": "19:15", "task": "Nat Homework", "rgb": "255,204,102" },
+        { "from": "19:15", "to": "19:30", "task": "Chemistry", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" }
+      ]
+    },
+    
+    {
+      "day": "Tuesday",
+      "tasks": [
+        { "from": "17:00", "to": "17:30", "task": "School Homework", "rgb": "255,204,102" },
+        { "from": "17:35", "to": "17:45", "task": "Handwriting", "rgb": "255,204,102" },
+        { "from": "18:00", "to": "18:15", "task": "Physics", "rgb": "255,204,102" },
+        { "from": "18:30", "to": "18:45", "task": "Biology", "rgb": "255,204,102" },  
+        { "from": "19:00", "to": "19:30", "task": "Maths", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" }
+      ]
+    },
+
+    {
+      "day": "Wednesday",
+      "tasks": [
+        { "from": "17:00", "to": "17:30", "task": "Maths  ", "rgb": "255,204,102" },
+        { "from": "17:45", "to": "18:45", "task": "Carnatic Class", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" }
+      ]
+    },
+    
+    {
+      "day": "Thursday",
+      "tasks": [
+        { "from": "17:00", "to": "17:30", "task": "School Homework", "rgb": "255,204,102" },
+        { "from": "17:35", "to": "17:45", "task": "Handwriting", "rgb": "255,204,102" },
+        { "from": "18:00", "to": "18:15", "task": "Physics", "rgb": "255,204,102" },
+        { "from": "18:30", "to": "18:45", "task": "Biology", "rgb": "255,204,102" },
+        { "from": "19:00", "to": "19:30", "task": "Maths", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" },
+        { "from": "20:15", "to": "20:30", "task": "Guitar", "rgb": "255,204,102" }
+      ]
+    },
+    
+    {
+      "day": "Friday",
+      "tasks": [
+        { "from": "17:00", "to": "18:45", "task": "Youth Club", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" }
+      ]
+    },
+    
+    {
+      "day": "Saturday",
+      "tasks": [
+        { "from": "12:00", "to": "12:30", "task": "Nat Homework", "rgb": "255,204,102" },
+        { "from": "17:35", "to": "17:45", "task": "Handwriting", "rgb": "255,204,102" },
+        { "from": "18:00", "to": "19:00", "task": "Computers", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" }
+      ]
+    },
+    
+    {
+      "day": "Sunday",
+      "tasks": [
+        { "from": "18:00", "to": "18:30", "task": "Maths", "rgb": "255,204,102" },
+        { "from": "19:15", "to": "19:30", "task": "Chemistry", "rgb": "255,204,102" },
+        { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "255,204,102" },
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "255,204,102" },
+        { "from": "20:15", "to": "20:30", "task": "Guitar", "rgb": "255,204,102" }
       ]
     }
   ]
