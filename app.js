@@ -9,6 +9,7 @@ let nextUpBar = document.getElementById("nextUp");
 let dateTimeDisplay = document.getElementById("dateTimeDisplay");
 let musicBtn = document.getElementById("musicToggle");
 let bgMusic = document.getElementById("bgMusic");
+let taskDetailsDiv = document.getElementById("taskDetails");
 let isMuted = false;
 let lastActiveTaskName = "";
 
@@ -97,8 +98,18 @@ function updateTasks() {
 
   if(activeTask){
     currentInfo.textContent = `Active: ${activeTask.task} | Ends at ${activeTask.to}`;
+    // Show details if available
+    if(activeTask.details){
+      if(activeTask.details.startsWith("http")){
+        taskDetailsDiv.innerHTML = `<a href="${activeTask.details}" target="_blank">Open Task Details</a>`;
+      } else {
+        taskDetailsDiv.textContent = activeTask.details;
+      }
+    } else {
+      taskDetailsDiv.textContent = "";
+    }
     document.body.classList.remove("free-time");
-
+    
     if(lastActiveTaskName !== activeTask.task){
       playChime("task_chime.mp3");
       confettiBurst();
@@ -109,6 +120,7 @@ function updateTasks() {
     activeTask.element.scrollIntoView({behavior:"smooth", inline:"center"});
   } else {
     currentInfo.textContent = "No active task";
+    taskDetailsDiv.textContent = "";
     document.body.classList.add("free-time");
     lastActiveTaskName = "";
     playChime("free_chime.mp3");
