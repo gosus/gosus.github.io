@@ -1,4 +1,15 @@
 const WEEK = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const taskEmojis = {
+  "Breakfast": "🍳",
+  "Snack & Relax": "🍎",
+  "Maths Practice": "📚",
+  "Physics Revision": "🔬",
+  "Dinner Break": "🍲",
+  "Music Practice": "🎵",
+  "Reading Time": "📖"
+};
+
+
 let stars = [];
 let starCanvas, ctx;
 let nightMode = false;
@@ -8,6 +19,13 @@ async function loadData() {
   return await res.json();
 }
 
+
+// Update progress every second
+setInterval(()=>{
+  if(lastActiveTask){
+    updateProgress(lastActiveTask);
+  }
+},1000);
 function timeToMinutes(t) {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
