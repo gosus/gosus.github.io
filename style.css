@@ -237,12 +237,21 @@ h2 {
   }
 }
 
+/* Task details animation */
 #taskDetails {
   font-size: 1.3rem;
   margin-top: 10px;
-  color: #ffeaa7; /* soft yellow for readability */
+  color: #ffeaa7; /* soft yellow */
   text-align: center;
   word-wrap: break-word;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.6s ease-in-out;
+}
+
+#taskDetails.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 #taskDetails a {
