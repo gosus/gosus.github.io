@@ -99,7 +99,7 @@ function updateTasks() {
   nextTask = newNext;
 
   if(activeTask){
-    currentInfo.textContent = `Active: ${activeTask.task} | Ends at ${activeTask.to}`;
+    // currentInfo.textContent = `Active: ${activeTask.task} | Ends at ${activeTask.to}`;
     // Show details if available
     if(activeTask.details){
       if(activeTask.details.startsWith("http")){
