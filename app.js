@@ -52,7 +52,7 @@ function initTasks() {
 
   setInterval(updateTasks, 1000);
   updateTasks();
-  bgMusic.play();
+  //bgMusic.play();
 }
 
 function updateTasks() {
