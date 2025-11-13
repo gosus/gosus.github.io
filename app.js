@@ -21,6 +21,19 @@ musicBtn.addEventListener("click", () => {
 });
 */
 
+function spawnSparkles(targetElement, count = 5) {
+  const rect = targetElement.getBoundingClientRect();
+  for (let i = 0; i < count; i++) {
+    let sparkle = document.createElement("div");
+    sparkle.className = "sparkle";
+    sparkle.style.left = (rect.left + Math.random() * rect.width) + "px";
+    sparkle.style.top = (rect.top + Math.random() * rect.height) + "px";
+    document.body.appendChild(sparkle);
+    // Remove after animation
+    sparkle.addEventListener("animationend", () => sparkle.remove());
+  }
+}
+
 fetch("tasks.json")
   .then(res => res.json())
   .then(data => {
@@ -108,6 +121,11 @@ function updateTasks() {
         taskDetailsDiv.textContent = activeTask.details;
       }
       taskDetailsDiv.classList.add("show"); // slide/fade in
+      
+      // Sparkles around the hyperlink
+      const link = taskDetailsDiv.querySelector("a");
+      if(link) 
+        spawnSparkles(link, 8);
     } else {
       taskDetailsDiv.textContent = "";
       taskDetailsDiv.classList.remove("show");
