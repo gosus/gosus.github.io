@@ -262,3 +262,32 @@ h2 {
   color: #ffd700;
   text-decoration: underline;
 }
+
+/* Sparkle container */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  width: 6px;
+  height: 6px;
+  background: #fffacd;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  animation: sparkleAnim 0.8s ease-out forwards;
+  box-shadow: 0 0 8px #fffacd, 0 0 12px #ffeaa7;
+}
+
+@keyframes sparkleAnim {
+  0% {
+    opacity: 1;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) translateY(-8px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) translateY(-16px);
+  }
+}
