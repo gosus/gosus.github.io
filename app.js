@@ -7,17 +7,19 @@ let currentInfo = document.getElementById("currentInfo");
 let nextUpText = document.getElementById("nextUpText");
 let nextUpBar = document.getElementById("nextUp");
 let dateTimeDisplay = document.getElementById("dateTimeDisplay");
-let musicBtn = document.getElementById("musicToggle");
-let bgMusic = document.getElementById("bgMusic");
 let taskDetailsDiv = document.getElementById("taskDetails");
-let isMuted = false;
 let lastActiveTaskName = "";
 
+/*
+let musicBtn = document.getElementById("musicToggle");
+let bgMusic = document.getElementById("bgMusic");
+let isMuted = false;
 musicBtn.addEventListener("click", () => {
   isMuted = !isMuted;
   bgMusic.muted = isMuted;
   musicBtn.textContent = isMuted ? "🔇 Muted" : "🔊 Mute";
 });
+*/
 
 fetch("tasks.json")
   .then(res => res.json())
