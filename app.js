@@ -115,7 +115,7 @@ function updateTasks() {
     document.body.classList.remove("free-time");
     
     if(lastActiveTaskName !== activeTask.task){
-      playChime("task_chime.mp3");
+      //playChime("task_chime.mp3");
       confettiBurst();
       lastActiveTaskName = activeTask.task;
     }
@@ -128,7 +128,7 @@ function updateTasks() {
     taskDetailsDiv.classList.remove("show");
     document.body.classList.add("free-time");
     lastActiveTaskName = "";
-    playChime("free_chime.mp3");
+    //playChime("free_chime.mp3");
   }
 
   if(nextTask){
@@ -139,6 +139,7 @@ function updateTasks() {
   }
 }
 
+/*
 // Play chime sound
 let lastChime = null;
 function playChime(file){
@@ -148,6 +149,7 @@ function playChime(file){
   if(!isMuted) audio.play();
   lastChime = file;
 }
+*/
 
 // --- Starfield ---
 let canvas = document.getElementById("starfield");
