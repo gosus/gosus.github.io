@@ -176,7 +176,7 @@ async function renderApp(){
   }
   
   renderLoop(); 
-  //setInterval(renderLoop,1000);
+  setInterval(renderLoop,5000);
   
   const {text: greetingText, night}=getGreeting(data.name); 
   nightMode=night; 
