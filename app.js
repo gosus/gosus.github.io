@@ -14,6 +14,18 @@ const taskEmojis = {
   "Reading Time": "📖"
 };
 
+function updateDateTime() {
+  const now = new Date();
+  const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+  const dateStr = now.toLocaleDateString(undefined, options);
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second:'2-digit' });
+  document.getElementById('dateTimeDisplay').textContent = `${dateStr} | ${timeStr}`;
+}
+
+// Start updating every second
+setInterval(updateDateTime, 1000);
+updateDateTime(); // initial call
+
 // --- Greeting ---
 function getGreeting(name){
   const hour = new Date().getHours();
