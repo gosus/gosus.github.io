@@ -22,7 +22,7 @@ fetch("tasks.json")
   .then(res => res.json())
   .then(data => {
     tasksData = data;
-    //document.getElementById("childName").textContent = "Welcome, " + data.name + "!";
+    document.getElementById("greeting").textContent = "Welcome, " + data.name + "!";
     initTasks();
   });
 
