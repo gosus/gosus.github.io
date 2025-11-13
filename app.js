@@ -1,91 +1,147 @@
-const WEEK = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-let stars = [], starCanvas, ctx, nightMode = false;
+const taskEmojis = {
+  "Breakfast": "🍳",
+  "Snack & Relax": "🍎",
+  "Maths Practice": "📚",
+  "Physics Revision": "🔬",
+  "Dinner Break": "🍲",
+  "Music Practice": "🎵",
+  "Reading Time": "📖"
+};
 
-// --- Load JSON ---
-async function loadData() {
-  const res = await fetch("tasks.json");
-  return await res.json();
+// --- Confetti ---
+let confettiParticles = [];
+const confettiCanvas = document.getElementById("confetti-canvas");
+const confettiCtx = confettiCanvas.getContext("2d");
+
+function resizeConfettiCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeConfettiCanvas);
+resizeConfettiCanvas();
+
+function createConfetti() {
+  for (let i = 0; i < 60; i++) {
+    confettiParticles.push({
+      x: Math.random() * confettiCanvas.width,
+      y: Math.random() * -confettiCanvas.height,
+      color: `hsl(${Math.random()*360}, 100%, 50%)`,
+      size: Math.random() * 6 + 4,
+      speedY: Math.random() * 2 + 2,
+      speedX: Math.random() * 2 - 1,
+      rotation: Math.random() * 360
+    });
+  }
 }
 
-// --- Time helpers ---
-function timeToMinutes(t){ const [h,m] = t.split(":").map(Number); return h*60+m; }
-function getTodayTasks(data){ const today=WEEK[new Date().getDay()]; const dayObj=data.days.find(d=>d.day===today); return dayObj?dayObj.tasks:[]; }
-
-// --- Greeting with icons ---
-function getGreeting(name){
-  const hour = new Date().getHours();
-  if(hour>=5 && hour<12) return {text:`🌅 Good morning, ${name}!`, bg:"linear-gradient(180deg,#ffecd2,#fcb69f)", night:false};
-  if(hour>=12 && hour<18) return {text:`☀️ Good afternoon, ${name}!`, bg:"linear-gradient(180deg,#89f7fe,#66a6ff)", night:false};
-  if(hour>=18 && hour<21) return {text:`🌇 Good evening, ${name}!`, bg:"linear-gradient(180deg,#fbc2eb,#a6c1ee)", night:false};
-  return {text:`🌙 Good night, ${name}! Sweet dreams!`, bg:"linear-gradient(180deg,#141E30,#243B55)", night:true};
+function animateConfetti() {
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiParticles.forEach((p, i) => {
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.rotation += 5;
+    confettiCtx.fillStyle = p.color;
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rotation * Math.PI / 180);
+    confettiCtx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+    confettiCtx.restore();
+    if (p.y > confettiCanvas.height) confettiParticles.splice(i, 1);
+  });
+  if(confettiParticles.length>0) requestAnimationFrame(animateConfetti);
 }
 
-// --- Render tasks ---
-function render(name,tasks){
-  const now=new Date(); const mins=now.getHours()*60+now.getMinutes();
-  const {text:bgText,bg,night} = getGreeting(name); nightMode=night;
+function triggerConfetti() { createConfetti(); animateConfetti(); }
 
-  document.getElementById("greeting").textContent = bgText;
-  document.getElementById("dayTitle").textContent = `${WEEK[now.getDay()]}'s Plan`;
-  document.body.style.background = bg;
+// --- Render tasks with emoji & progress ---
+let lastActiveTask = null;
+function renderTasks(name, tasks) {
+  const now = new Date();
+  const mins = now.getHours()*60 + now.getMinutes();
+  const timeline = document.getElementById("timeline");
+  timeline.innerHTML = "";
 
-  nightMode?startStars():stopStars();
+  let active = null;
 
-  const timeline=document.getElementById("timeline");
-  const info=document.getElementById("currentInfo");
-  const loading=document.getElementById("loading");
-  timeline.innerHTML=""; loading.style.display="none";
-
-  if(tasks.length===0){ info.textContent="No scheduled tasks today — enjoy your free time!"; return; }
-
-  let active=null;
   tasks.forEach((t,i)=>{
-    const from=timeToMinutes(t.from), to=timeToMinutes(t.to);
-    let state="future"; if(mins>=to) state="past"; else if(mins>=from && mins<to){state="active"; active=t;}
-    const div=document.createElement("div");
-    div.className=`task ${state}`;
-    div.style.background=`rgba(${t.rgb},0.25)`; div.style.borderLeft=`8px solid rgb(${t.rgb})`;
-    div.style.animationDelay=`${i*0.1}s`;
-    div.innerHTML=`<div class="title">${t.task}</div><div class="time">${t.from} → ${t.to}</div>`;
+    const from = timeToMinutes(t.from);
+    const to = timeToMinutes(t.to);
+    let state = "future";
+    if(mins>=to) state="past";
+    else if(mins>=from && mins<to){ state="active"; active=t; }
+
+    const div = document.createElement("div");
+    div.className = `task ${state}`;
+    div.style.background = `rgba(${t.rgb},0.25)`;
+    div.style.borderLeft = `8px solid rgb(${t.rgb})`;
+    div.style.animationDelay = `${i*0.1}s`;
+
+    // Emoji + title
+    const icon = document.createElement("span");
+    icon.className = "icon";
+    icon.textContent = taskEmojis[t.task] || "✅";
+
+    const title = document.createElement("div");
+    title.className="title";
+    title.textContent = t.task;
+
+    const timeDiv = document.createElement("div");
+    timeDiv.className="time";
+    timeDiv.textContent = `${t.from} → ${t.to}`;
+
+    // Progress bar
+    const progressContainer = document.createElement("div");
+    progressContainer.className="progress-container";
+    const progressBar = document.createElement("div");
+    progressBar.className="progress-bar";
+    progressContainer.appendChild(progressBar);
+
+    div.appendChild(icon);
+    div.appendChild(title);
+    div.appendChild(timeDiv);
+    div.appendChild(progressContainer);
     timeline.appendChild(div);
+
+    t._progressBar = progressBar; // save for update
   });
 
-  if(active){ const remain=timeToMinutes(active.to)-mins; info.textContent=`Now: ${active.task} — ${remain} min left!`;
-    document.body.style.background=`linear-gradient(180deg, rgba(${active.rgb},0.35), #1a1c2f)`;}
+  // Confetti if task changed
+  if(lastActiveTask && lastActiveTask!==active && lastActiveTask!==null){
+    triggerConfetti();
+  }
+  lastActiveTask = active;
+
+  return active;
 }
 
-// --- Starfield ---
-function startStars(){
-  if(starCanvas) return;
-  starCanvas=document.getElementById("starfield"); ctx=starCanvas.getContext("2d");
-  resizeCanvas();
-  stars=Array.from({length:80},()=>({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,size:Math.random()*2,speed:0.05+Math.random()*0.2,alpha:0.3+Math.random()*0.7}));
-  window.addEventListener("resize",resizeCanvas); requestAnimationFrame(animateStars);
-}
-function stopStars(){ if(!starCanvas) return; ctx.clearRect(0,0,starCanvas.width,starCanvas.height);}
-function resizeCanvas(){ if(!starCanvas) return; starCanvas.width=window.innerWidth; starCanvas.height=window.innerHeight;}
-function animateStars(){ if(!nightMode||!ctx)return; ctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-  stars.forEach(s=>{s.y+=s.speed;if(s.y>starCanvas.height){s.y=0;s.x=Math.random()*starCanvas.width;} s.alpha+= (Math.random()-0.5)*0.05; s.alpha=Math.max(0.3,Math.min(1,s.alpha)); ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,2*Math.PI); ctx.fillStyle=`rgba(255,255,255,${s.alpha})`; ctx.fill();});
-  requestAnimationFrame(animateStars);
+// --- Update progress every second ---
+function updateProgress(activeTask){
+  if(!activeTask) return;
+  const now = new Date();
+  const mins = now.getHours()*60 + now.getMinutes();
+  const from = timeToMinutes(activeTask.from);
+  const to = timeToMinutes(activeTask.to);
+  const percent = Math.max(0, Math.min(100, ((mins-from)/(to-from))*100));
+  activeTask._progressBar.style.width = percent + "%";
 }
 
-// --- Init ---
-async function init(){
-  const data=await loadData();
-  const tasks=getTodayTasks(data);
-  render(data.name,tasks);
-  setInterval(()=>render(data.name,tasks),60000);
-
-  const music=document.getElementById("bgMusic");
-  const toggle=document.getElementById("musicToggle");
-
-  // Load stored preference
-  if(localStorage.getItem("musicPaused")==="true"){ music.pause(); toggle.textContent="🔇 Unmute"; } else { music.play().catch(()=>{}); }
-
-  toggle.addEventListener("click",()=>{
-    if(music.paused){ music.play(); toggle.textContent="🔊 Mute"; localStorage.setItem("musicPaused","false"); }
-    else{ music.pause(); toggle.textContent="🔇 Unmute"; localStorage.setItem("musicPaused","true"); }
-  });
+// --- Integration with main render ---
+async function render(name, tasks){
+  const active = renderTasks(name, tasks);
+  updateProgress(active);
+  const info=document.getElementById("currentInfo");
+  const mins = new Date().getHours()*60 + new Date().getMinutes();
+  if(active){
+    const remain = timeToMinutes(active.to)-mins;
+    info.textContent = `Now: ${active.task} — ${remain} min left!`;
+  } else {
+    info.textContent = "No active task right now — enjoy your free time!";
+  }
 }
 
-init();
+// Update progress every second
+setInterval(()=>{
+  if(lastActiveTask){
+    updateProgress(lastActiveTask);
+  }
+},1000);
