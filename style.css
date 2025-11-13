@@ -236,3 +236,16 @@ h2 {
     text-shadow: 0 0 6px rgba(0,0,0,0.7), 0 0 10px #ffd700;
   }
 }
+
+#taskDetails {
+  font-size: 1.3rem;
+  margin-top: 10px;
+  color: #ffeaa7; /* soft yellow for readability */
+  text-align: center;
+  word-wrap: break-word;
+}
+
+#taskDetails a {
+  color: #ffd700;
+  text-decoration: underline;
+}
