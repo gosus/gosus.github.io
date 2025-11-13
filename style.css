@@ -46,7 +46,7 @@ body.free-time {
 
 /* --- Main container --- */
 main {
-  width: min(720px, 90%);
+  width: min(720px, 100%);
   margin-top: 60px;
   text-align: center;
   z-index: 2;
@@ -99,6 +99,7 @@ h2 {
 .task.active {
   text-align: center;
   transform: scale(1.2);
+  width: 90%;
   opacity: 1;
   z-index: 5;
   animation: pulseGlow 3s ease-in-out infinite;
