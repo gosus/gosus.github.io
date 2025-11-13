@@ -1,209 +1,198 @@
-// --- Helper functions ---
-const WEEK = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-function timeToMinutes(t){ const [h,m] = t.split(":").map(Number); return h*60+m; }
-function getTodayTasks(data){ const today=WEEK[new Date().getDay()]; const dayObj=data.days.find(d=>d.day===today); return dayObj?dayObj.tasks:[]; }
+// Enhanced Glowboard JS
+let tasksData = [];
+let activeTask = null;
+let nextTask = null;
+let timeline = document.getElementById("timeline");
+let currentInfo = document.getElementById("currentInfo");
+let nextUpText = document.getElementById("nextUpText");
+let nextUpBar = document.getElementById("nextUp");
+let dateTimeDisplay = document.getElementById("dateTimeDisplay");
+let musicBtn = document.getElementById("musicToggle");
+let bgMusic = document.getElementById("bgMusic");
+let isMuted = false;
+let lastActiveTaskName = "";
 
-// --- Task emojis ---
-const taskEmojis = {
-  "Breakfast": "🍳",
-  "Snack & Relax": "🍎",
-  "Maths Practice": "📚",
-  "Physics Revision": "🔬",
-  "Dinner Break": "🍲",
-  "Music Practice": "🎵",
-  "Reading Time": "📖"
-};
+musicBtn.addEventListener("click", () => {
+  isMuted = !isMuted;
+  bgMusic.muted = isMuted;
+  musicBtn.textContent = isMuted ? "🔇 Muted" : "🔊 Mute";
+});
 
-function updateDateTime() {
-  const now = new Date();
-  const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
-  const dateStr = now.toLocaleDateString(undefined, options);
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second:'2-digit' });
-  document.getElementById('dateTimeDisplay').textContent = `${dateStr} | ${timeStr}`;
+fetch("tasks.json")
+  .then(res => res.json())
+  .then(data => {
+    tasksData = data;
+    initTasks();
+  });
+
+function initTasks() {
+  let todayName = new Date().toLocaleString('en-us', {weekday: 'long'});
+  let todayData = tasksData.days.find(d => d.day === todayName);
+  document.getElementById("dayTitle").textContent = todayName;
+  if (!todayData) {
+    timeline.innerHTML = "<p>No tasks today!</p>";
+    return;
+  }
+
+  timeline.innerHTML = "";
+  todayData.tasks.forEach((task, i) => {
+    let div = document.createElement("div");
+    div.className = "task";
+    div.style.setProperty("--glow-color", `rgb(${task.rgb})`);
+    div.innerHTML = `<div><strong>${task.task}</strong><br/><span class="time">${task.from} - ${task.to}</span>
+    <div class="progress-container"><div class="progress-bar"></div></div></div>`;
+    timeline.appendChild(div);
+    task.element = div;
+    task.index = i;
+  });
+
+  setInterval(updateTasks, 1000);
+  updateTasks();
+  bgMusic.play();
 }
 
-// Start updating every second
-setInterval(updateDateTime, 1000);
-updateDateTime(); // initial call
+function updateTasks() {
+  let now = new Date();
+  dateTimeDisplay.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+  let todayName = now.toLocaleString('en-us', {weekday: 'long'});
+  let todayData = tasksData.days.find(d => d.day === todayName);
+  if (!todayData) return;
 
-// --- Greeting ---
-function getGreeting(name){
-  const hour = new Date().getHours();
-  if(hour>=5 && hour<12) return {text:`🌅 Good morning, ${name}!`, night:false};
-  if(hour>=12 && hour<18) return {text:`☀️ Good afternoon, ${name}!`, night:false};
-  if(hour>=18 && hour<21) return {text:`🌇 Good evening, ${name}!`, night:false};
-  return {text:`🌙 Good night, ${name}! Sweet dreams!`, night:true};
+  let anyActive = false;
+  let newActive = null;
+  let newNext = null;
+
+  todayData.tasks.forEach(task => {
+    let [fromH, fromM] = task.from.split(":").map(Number);
+    let [toH, toM] = task.to.split(":").map(Number);
+    let fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fromH, fromM);
+    let toTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), toH, toM);
+
+    if (now >= fromTime && now < toTime) {
+      task.element.classList.add("active");
+      task.element.classList.remove("past","future");
+      newActive = task;
+      anyActive = true;
+    } else if (now < fromTime) {
+      task.element.classList.remove("active","past");
+      task.element.classList.add("future");
+      if (!newNext) newNext = task;
+    } else {
+      task.element.classList.remove("active","future");
+      task.element.classList.add("past");
+    }
+
+    // Update progress bar
+    if (task.element.querySelector(".progress-bar") && now >= fromTime && now <= toTime) {
+      let pct = ((now - fromTime)/(toTime - fromTime))*100;
+      task.element.querySelector(".progress-bar").style.width = pct+"%";
+    } else if(task.element.querySelector(".progress-bar")) {
+      task.element.querySelector(".progress-bar").style.width = "0%";
+    }
+  });
+
+  activeTask = newActive;
+  nextTask = newNext;
+
+  if(activeTask){
+    currentInfo.textContent = `Active: ${activeTask.task} | Ends at ${activeTask.to}`;
+    document.body.classList.remove("free-time");
+
+    if(lastActiveTaskName !== activeTask.task){
+      playChime("task_chime.mp3");
+      confettiBurst();
+      lastActiveTaskName = activeTask.task;
+    }
+
+    // Scroll active task to center
+    activeTask.element.scrollIntoView({behavior:"smooth", inline:"center"});
+  } else {
+    currentInfo.textContent = "No active task";
+    document.body.classList.add("free-time");
+    lastActiveTaskName = "";
+    playChime("free_chime.mp3");
+  }
+
+  if(nextTask){
+    nextUpText.textContent = `${nextTask.task} (${nextTask.from})`;
+    nextUpBar.classList.add("show");
+  } else {
+    nextUpBar.classList.remove("show");
+  }
+}
+
+// Play chime sound
+let lastChime = null;
+function playChime(file){
+  if(lastChime === file) return;
+  let audio = new Audio(file);
+  audio.volume = 0.5;
+  if(!isMuted) audio.play();
+  lastChime = file;
 }
 
 // --- Starfield ---
-let stars=[], starCanvas, ctx, nightMode=false;
-function startStars(){
-  if(starCanvas) return;
-  starCanvas=document.getElementById("starfield"); 
-  ctx=starCanvas.getContext("2d");
-  resizeCanvas();
-  stars=Array.from({length:80},()=>({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,size:Math.random()*2,speed:0.05+Math.random()*0.2,alpha:0.3+Math.random()*0.7}));
-  window.addEventListener("resize",resizeCanvas); 
-  requestAnimationFrame(animateStars);
+let canvas = document.getElementById("starfield");
+let ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let stars = [];
+for(let i=0;i<150;i++){
+  stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r: Math.random()*1.5});
 }
-
-function stopStars(){ 
-  if(!starCanvas) 
-    return; 
-  ctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+function drawStars(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle="white";
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
 }
-
-function resizeCanvas(){
-   if(!starCanvas)
-     return; 
-   starCanvas.width=window.innerWidth; starCanvas.height=window.innerHeight;
-}
-
-function animateStars(){
-  if(!nightMode||!ctx)return;
-    ctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-    
-  stars.forEach(s=>{s.y+=s.speed;if(s.y>starCanvas.height){s.y=0;s.x=Math.random()*starCanvas.width;} s.alpha+= (Math.random()-0.5)*0.05; s.alpha=Math.max(0.3,Math.min(1,s.alpha)); ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,2*Math.PI); ctx.fillStyle=`rgba(255,255,255,${s.alpha})`; ctx.fill();});
-  requestAnimationFrame(animateStars);
-}
+drawStars();
 
 // --- Confetti ---
-let confettiParticles = [];
-const confettiCanvas = document.getElementById("confetti-canvas");
-const confettiCtx = confettiCanvas.getContext("2d");
-
-function resizeConfettiCanvas(){
-  confettiCanvas.width=window.innerWidth; 
-  confettiCanvas.height=window.innerHeight;
+let confCanvas = document.getElementById("confetti-canvas");
+let confCtx = confCanvas.getContext("2d");
+confCanvas.width = window.innerWidth;
+confCanvas.height = window.innerHeight;
+let confetti = [];
+function confettiBurst(){
+  for(let i=0;i<100;i++){
+    confetti.push({
+      x:Math.random()*confCanvas.width,
+      y:Math.random()*confCanvas.height - confCanvas.height,
+      r:Math.random()*6+4,
+      d:Math.random()*15+5,
+      color:`hsl(${Math.random()*360},100%,60%)`,
+      tilt:Math.random()*10-10
+    });
+  }
+  animateConfetti();
 }
-
-window.addEventListener("resize",resizeConfettiCanvas); 
-resizeConfettiCanvas();
-
-function createConfetti(){
-  for(let i=0;i<60;i++){
-    confettiParticles.push({x:Math.random()*confettiCanvas.width,y:Math.random()*-confettiCanvas.height,color:`hsl(${Math.random()*360},100%,50%)`,size:Math.random()*6+4,speedY:Math.random()*2+2,speedX:Math.random()*2-1,rotation:Math.random()*360});
-  } 
-}
-
 function animateConfetti(){
-  confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); 
-  confettiParticles.forEach((p,i)=>{ p.y+=p.speedY; p.x+=p.speedX; p.rotation+=5; confettiCtx.fillStyle=p.color; confettiCtx.save(); confettiCtx.translate(p.x,p.y); confettiCtx.rotate(p.rotation*Math.PI/180); confettiCtx.fillRect(-p.size/2,-p.size/2,p.size,p.size); confettiCtx.restore(); if(p.y>confettiCanvas.height) confettiParticles.splice(i,1); }); 
-  if(confettiParticles.length>0)
-    requestAnimationFrame(animateConfetti);
-}
-
-function triggerConfetti(){
-  createConfetti(); 
-  animateConfetti(); 
-}
-
-// --- Render tasks ---
-let lastActiveTask = null;
-function renderTasks(name,tasks){
-  const now=new Date(); 
-  const mins=now.getHours()*60+now.getMinutes();
-  const timeline=document.getElementById("timeline"); 
-  timeline.innerHTML="";
-  let active=null;
-  tasks.forEach((t,i)=>{
-    const from=timeToMinutes(t.from), to=timeToMinutes(t.to);
-    let state="future"; 
-    if(mins>=to)
-      state="past"; 
-    else if(mins>=from && mins<to){
-      state="active"; 
-      active=t; 
-    }
-    const div=document.createElement("div"); 
-    div.className=`task ${state}`; 
-    div.style.background=`rgba(${t.rgb},0.25)`; 
-    div.style.borderLeft=`8px solid rgb(${t.rgb})`; 
-    div.style.animationDelay=`${i*0.1}s`;
-    // Emoji
-    const icon=document.createElement("span"); 
-    icon.className="icon"; 
-    icon.textContent=taskEmojis[t.task]||"✅";
-    
-    const title=document.createElement("div"); 
-    title.className="title"; 
-    title.textContent=t.task;
-    
-    const timeDiv=document.createElement("div"); 
-    timeDiv.className="time"; 
-    timeDiv.textContent=`${t.from} → ${t.to}`;
-    
-    // Progress bar
-    const progressContainer=document.createElement("div"); 
-    progressContainer.className="progress-container";
-    
-    const progressBar=document.createElement("div");
-    progressBar.className="progress-bar";
-    progressContainer.appendChild(progressBar); t._progressBar=progressBar;
-    div.appendChild(icon); 
-    div.appendChild(title); 
-    div.appendChild(timeDiv); 
-    div.appendChild(progressContainer);
-    timeline.appendChild(div);
+  confCtx.clearRect(0,0,confCanvas.width,confCanvas.height);
+  confetti.forEach((c,i)=>{
+    c.y += Math.sin(c.d/10)+2;
+    c.x += Math.sin(c.d/10);
+    c.tilt += 0.1;
+    confCtx.fillStyle=c.color;
+    confCtx.beginPath();
+    confCtx.moveTo(c.x+ c.tilt, c.y);
+    confCtx.lineTo(c.x+ c.tilt + c.r/2, c.y + c.r);
+    confCtx.lineTo(c.x+ c.tilt - c.r/2, c.y + c.r);
+    confCtx.closePath();
+    confCtx.fill();
+    if(c.y>confCanvas.height) confetti.splice(i,1);
   });
-  
-  if(lastActiveTask && lastActiveTask!==active && lastActiveTask!==null){
-    triggerConfetti(); 
-  }
-  
-  lastActiveTask=active; 
-  return active;
+  if(confetti.length>0) requestAnimationFrame(animateConfetti);
 }
 
-function updateProgress(activeTask){
-  if(!activeTask)
-    return; 
-  const now=new Date(); 
-  const mins=now.getHours()*60+now.getMinutes(); 
-  const from=timeToMinutes(activeTask.from); 
-  const to=timeToMinutes(activeTask.to); 
-  const percent=Math.max(0,Math.min(100,((mins-from)/(to-from))*100)); 
-  activeTask._progressBar.style.width=percent+"%";
-}
-
-// --- Main render ---
-async function loadData(){
-  const res=await fetch("tasks.json"); 
-  return await res.json();
-}
-
-async function renderApp(){
-  const data=await loadData(); 
-  const tasks=getTodayTasks(data);
-  function renderLoop(){
-    const active=renderTasks(data.name,tasks); 
-    updateProgress(active); 
-    const info=document.getElementById("currentInfo"); 
-    const mins=new Date().getHours()*60+new Date().getMinutes(); 
-    if(active){
-      info.textContent=`Now: ${active.task} — ${timeToMinutes(active.to)-mins} min left!`; 
-    } else { 
-      info.textContent="No active task right now — enjoy your free time!";
-    } 
-  }
-  
-  renderLoop(); 
-  setInterval(renderLoop,5000);
-  
-  const {text: greetingText, night}=getGreeting(data.name); 
-  nightMode=night; 
-  document.getElementById("greeting").textContent=greetingText; 
-  nightMode?startStars():stopStars();
-  
-  const music=document.getElementById("bgMusic");
-  const toggle=document.getElementById("musicToggle");
-  if(localStorage.getItem("musicPaused")==="true"){
-    music.pause(); 
-    toggle.textContent="🔇 Unmute"; 
-  } else { 
-    music.play().catch(()=>{});
-  }
-   toggle.addEventListener("click",()=>{ if(music.paused){ music.play(); toggle.textContent="🔊 Mute"; localStorage.setItem("musicPaused","false"); } else { music.pause(); toggle.textContent="🔇 Unmute"; localStorage.setItem("musicPaused","true"); } });
-}
-
-renderApp();
+// Resize canvas
+window.addEventListener("resize",()=>{
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  confCanvas.width = window.innerWidth;
+  confCanvas.height = window.innerHeight;
+});
