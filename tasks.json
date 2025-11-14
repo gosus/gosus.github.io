@@ -54,7 +54,7 @@
     {
       "day": "Friday",
       "tasks": [
-        { "from": "17:00", "to": "18:45", "task": "Youth Club", "rgb": "255,255,0" },
+        { "from": "16:00", "to": "18:45", "task": "Youth Club", "rgb": "255,255,0" },
         { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "128,0,128" },
         { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "1,50,32" }
       ]
