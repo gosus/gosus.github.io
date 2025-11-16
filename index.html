@@ -3,54 +3,37 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Dhruv's Glowboard</title>
+<title>Dhruv's Cyber Glowboard</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <canvas id="starfield"></canvas>
 <canvas id="confetti-canvas"></canvas>
+
 <div id="dateTimeDisplay"></div>
+
 <main>
-<h1 id="greeting">Hello!</h1>
-<h2 id="dayTitle"></h2>
+  <h1 id="greeting">Hello!</h1>
 
-<!--
-<div id="timelineContainer">
-  <div id="timeline"></div>
-</div>
--->
-<!-- 
-<div id="currentInfo"></div>
--->
-<div id="taskDetails"></div>
+  <div id="daySwipeContainer">
+    <div id="daySwipeInner"></div>
+    <div class="swipe-arrow left">◀</div>
+    <div class="swipe-arrow right">▶</div>
+  </div>
 
-<!-- SWIPE DAYS CONTAINER -->
-<div id="daySwipeContainer">
-  <div id="daySwipeInner"></div>
-  <div class="swipe-arrow left">◀</div>
-  <div class="swipe-arrow right">▶</div>
-</div>
-<!--
-<div id="loading">Loading tasks...</div>
-<button id="musicToggle">🔊 Mute</button>
--->
+  <div id="taskDetails"></div>
+
+  <!-- Holographic Next Task Panel -->
+  <div id="nextTaskPanel">
+    <span id="nextUpText">Next Task: Loading...</span>
+  </div>
 </main>
 
-<!-- Next Up Preview -->
-<!--
-<div id="nextUp">
-  <span class="emoji">⏰</span>
-  <span class="label">Next:</span>
-  <span id="nextUpText">Loading...</span>
-</div>
--->
-
-<!--
+<!-- Optional ambient background music -->
 <audio id="bgMusic" loop>
-  <source src="soft_piano_loop.mp3" type="audio/mpeg">
+  <source src="soft_sci_fi_loop.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
--->
 
 <script src="app.js"></script>
 </body>
