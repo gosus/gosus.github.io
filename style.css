@@ -137,6 +137,7 @@ h2 {
   overflow: hidden;
   position: relative;
   touch-action: pan-y;
+  margin-top: 20px;
 }
 
 #daySwipeInner {
@@ -145,31 +146,43 @@ h2 {
   will-change: transform;
 }
 
+.dayPanel {
+  min-width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  position: relative; /* allow arrows to overlay */
+}
+
+/* Arrow styling */
 .swipe-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   font-size: 2rem;
-  color: rgba(255,255,255,0.5);
-  pointer-events: none;
-  user-select: none;
-  z-index: 2;
+  color: rgba(255,255,255,0.6);
+  z-index: 5;
   text-shadow: 0 0 6px rgba(0,0,0,0.7);
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
   transition: color 0.3s;
+  animation: pulseArrow 1.5s infinite ease-in-out;
 }
-.swipe-arrow.left { left: 10px; pointer-events:auto; cursor:pointer;}
-.swipe-arrow.right { right: 10px; pointer-events:auto; cursor:pointer;}
-.dayPanel {
-  min-width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-}
+
+.swipe-arrow.left { left: 5px; }
+.swipe-arrow.right { right: 5px; }
+
 /* --- Current info --- */
 #currentInfo {
   margin-top: 25px;
   font-size: 1.5rem;
   opacity: 0.95;
   transition: opacity 0.6s ease;
+}
+
+@keyframes pulseArrow {
+  0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1);}
+  50% { opacity: 1; transform: translateY(-50%) scale(1.1);}
 }
 
 /* --- Loading message --- */
