@@ -1,5 +1,4 @@
-// Enhanced Glowboard JS with Day-Swipe
-
+// ------------------- Glowboard App.js -------------------
 let tasksData = [];
 let activeTask = null;
 let nextTask = null;
@@ -7,7 +6,7 @@ let lastActiveTaskName = "";
 let dateTimeDisplay = document.getElementById("dateTimeDisplay");
 let taskDetailsDiv = document.getElementById("taskDetails");
 
-// --- SWIPE / LOOPING DAY PANELS ---
+// SWIPE & LOOPING VARIABLES
 let currentDayIndex = 0;
 let startX = 0, currentX = 0, isDragging = false;
 const swipeContainer = document.getElementById("daySwipeInner");
@@ -27,6 +26,17 @@ function spawnSparkles(targetElement, count = 5) {
   }
 }
 
+// ------------------- Notifications -------------------
+if ("Notification" in window && Notification.permission === "default") {
+  Notification.requestPermission();
+}
+
+function showNotification(title, body) {
+  if (Notification.permission === "granted") {
+    new Notification(title, { body: body });
+  }
+}
+
 // ------------------- Load JSON -------------------
 fetch("tasks.json")
   .then(res => res.json())
@@ -36,7 +46,7 @@ fetch("tasks.json")
     initTasks();
   });
 
-// ------------------- Init Tasks & Swipe Panels -------------------
+// ------------------- Initialize Tasks -------------------
 function initTasks() {
   swipeContainer.innerHTML = "";
 
@@ -57,10 +67,11 @@ function initTasks() {
     panel.innerHTML = `<h2>${day.day}</h2>${tasksHtml}`;
     swipeContainer.appendChild(panel);
 
-    // Save reference to task elements
     day.tasks.forEach((t, idx) => {
       t.element = panel.querySelectorAll(".task")[idx];
       t.index = idx;
+      t.notifiedStart = false;
+      t.notifiedEnd = false;
     });
   });
 
@@ -68,7 +79,7 @@ function initTasks() {
   const todayName = new Date().toLocaleString('en-us', { weekday: 'long' });
   const todayIdx = tasksData.days.findIndex(d => d.day === todayName);
   currentDayIndex = todayIdx >= 0 ? todayIdx : 0;
-  updateSwipePosition();
+  slideToCurrentDay();
 
   setupSwipe();
   setInterval(updateTasks, 1000);
@@ -76,15 +87,6 @@ function initTasks() {
 }
 
 // ------------------- Swipe / Drag Handlers -------------------
-function updateSwipePosition() {
-  //swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
-
-  // Adjust swipe on window resize
-  swipeContainer.style.transition = "none";
-  swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
-}
-
-// Setup swipe events
 function setupSwipe() {
   swipeContainer.addEventListener("touchstart", startDrag);
   swipeContainer.addEventListener("touchmove", drag);
@@ -95,7 +97,6 @@ function setupSwipe() {
   swipeContainer.addEventListener("mouseup", endDrag);
   swipeContainer.addEventListener("mouseleave", endDrag);
 
-  // Clickable arrows
   leftArrow.addEventListener("click", () => {
     currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
     slideToCurrentDay();
@@ -105,6 +106,7 @@ function setupSwipe() {
     slideToCurrentDay();
   });
 }
+
 function startDrag(e) {
   isDragging = true;
   startX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -122,13 +124,8 @@ function endDrag(e) {
   isDragging = false;
   const dx = currentX - startX;
 
-  if (dx > 80) {
-    // swipe right → previous day
-    currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
-  } else if (dx < -80) {
-    // swipe left → next day
-    currentDayIndex = (currentDayIndex + 1) % tasksData.days.length;
-  }
+  if (dx > 80) currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
+  else if (dx < -80) currentDayIndex = (currentDayIndex + 1) % tasksData.days.length;
 
   slideToCurrentDay();
 }
@@ -137,20 +134,17 @@ function slideToCurrentDay() {
   swipeContainer.style.transition = "transform 0.4s ease";
   swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
   setTimeout(() => swipeContainer.style.transition = "", 400);
-  updateTasks(); // refresh active task for visible day
+  updateTasks();
 }
 
 // ------------------- Update Tasks -------------------
 function updateTasks() {
   let now = new Date();
   dateTimeDisplay.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-
   let todayData = tasksData.days[currentDayIndex];
   if (!todayData) return;
 
-  let anyActive = false;
   let newActive = null;
-  let newNext = null;
 
   todayData.tasks.forEach(task => {
     let [fromH, fromM] = task.from.split(":").map(Number);
@@ -158,21 +152,30 @@ function updateTasks() {
     let fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fromH, fromM);
     let toTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), toH, toM);
 
+    // Notifications
+    if (now >= fromTime && now < fromTime.getTime() + 1000 && !task.notifiedStart) {
+      showNotification("Task Started!", `${task.task} has started.`);
+      task.notifiedStart = true;
+    }
+    if (now >= new Date(toTime - 5*60*1000) && now < toTime && !task.notifiedEnd) {
+      showNotification("Task Ending Soon", `${task.task} will end in 5 minutes.`);
+      task.notifiedEnd = true;
+    }
+
+    // Active / past / future classes
     if (now >= fromTime && now < toTime) {
       task.element.classList.add("active");
       task.element.classList.remove("past","future");
       newActive = task;
-      anyActive = true;
     } else if (now < fromTime) {
       task.element.classList.remove("active","past");
       task.element.classList.add("future");
-      if (!newNext) newNext = task;
     } else {
       task.element.classList.remove("active","future");
       task.element.classList.add("past");
     }
 
-    // Update progress bar
+    // Progress bar
     if (task.element.querySelector(".progress-bar") && now >= fromTime && now <= toTime) {
       let pct = ((now - fromTime)/(toTime - fromTime))*100;
       task.element.querySelector(".progress-bar").style.width = pct+"%";
@@ -182,9 +185,8 @@ function updateTasks() {
   });
 
   activeTask = newActive;
-  nextTask = newNext;
 
-  // Show active task details and sparkles
+  // Task details + sparkles + confetti
   if(activeTask){
     if(activeTask.details){
       if(activeTask.details.startsWith("http")){
@@ -193,7 +195,6 @@ function updateTasks() {
         taskDetailsDiv.textContent = activeTask.details;
       }
       taskDetailsDiv.classList.add("show");
-
       const link = taskDetailsDiv.querySelector("a");
       if(link) spawnSparkles(link, 8);
     } else {
@@ -276,5 +277,6 @@ window.addEventListener("resize",()=>{
   canvas.height = window.innerHeight;
   confCanvas.width = window.innerWidth;
   confCanvas.height = window.innerHeight;
-  updateSwipePosition();
+  swipeContainer.style.transition = "none";
+  swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
 });
