@@ -1,143 +1,58 @@
-/* --- Basic setup --- */
-html, body {
-  height: 100%;
+/* Reset & base */
+body, html {
   margin: 0;
-  font-family: "Poppins","Inter",sans-serif;
-  background: linear-gradient(180deg,#0b0d1a,#1a1c2f);
+  padding: 0;
+  font-family: 'Comic Sans MS', sans-serif;
+  background: #000;
   color: #fff;
+  overflow-x: hidden;
+  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
+  background-size: 600% 600%;
+  animation: gradientShift 30s ease infinite;
 }
 
-body.free-time {
-  background: linear-gradient(270deg,#ffb6c1,#add8e6,#90ee90,#fffacd,#ffa07a);
-  background-size: 800% 800%;
-  animation: rainbowGlow 25s ease infinite;
-}
-
-@keyframes rainbowGlow {
+@keyframes gradientShift {
   0%{background-position:0% 50%;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
-
-/* --- Canvas --- */
-#starfield, #confetti-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  background: transparent;
+  
+main {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  text-align: center;
 }
 
-/* --- Top-right clock --- */
+/* Date & Time */
 #dateTimeDisplay {
   position: fixed;
-  top: 12px;
-  right: 16px;
-  font-size: 1.0rem;
-  background: rgba(0,0,0,0.5);
-  padding: 8px 14px;
-  border-radius: 10px;
-  color: #fff;
+  top: 10px;
+  right: 20px;
+  font-size: 1.2rem;
+  color: #ffd700;
+  font-weight: bold;
   z-index: 10;
-  font-family: monospace;
+  text-shadow: 0 0 5px #000;
 }
 
-/* --- Main container --- */
-main {
-  width: min(720px, 100%);
-  margin-top: 60px;
-  text-align: center;
-  z-index: 2;
-  position: relative;
-  animation: fadeIn 1s ease forwards;
+/* Greeting & Day Title */
+#greeting {
+  font-size: 2rem;
+  margin: 10px 0;
 }
 
-/* --- Headings --- */
-h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
-  animation: float 3s ease-in-out infinite alternate;
+#dayTitle {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
 }
 
-h2 {
-  font-size: 1.8rem;
-  color: rgba(255,255,255,0.85);
-  margin-bottom: 25px;
-}
-
-/* --- Timeline tasks --- */
-#timelineContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  max-height: 60vh;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  position: relative;
-}
-
-.task {
-  width: 90%;
-  margin: 15px auto;
-  padding: 20px;
-  border-radius: 16px;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.4rem;
-  color: #fff;
-  text-shadow: 0 0 4px rgba(0,0,0,0.7);
-  background: linear-gradient(145deg, rgba(var(--glow-color),0.8), rgba(var(--glow-color),0.6));
-  box-shadow: 0 0 25px rgba(0,0,0,0.2);
-  transition: transform 0.6s ease, opacity 0.6s ease, box-shadow 0.6s ease;
-}
-
-.task.active {
-  text-align: center;
-  transform: scale(1.2);
-  width: 90%;
-  opacity: 1;
-  z-index: 5;
-  animation: pulseGlow 3s ease-in-out infinite;
-  box-shadow: 0 0 35px rgba(var(--glow-color),0.9);
-}
-
-.task.past, .task.future {
-  transform: scale(0.85);
-  opacity: 0.5;
-  z-index: 1;
-  background: linear-gradient(145deg, rgba(var(--glow-color),0.4), rgba(var(--glow-color),0.3));
-}
-
-/* --- Progress bar --- */
-.task .progress-container {
-  width: 100%;
-  height: 8px;
-  text-align: center;
-  background: rgba(255,255,255,0.2);
-  border-radius: 4px;
-  margin-top: 8px;
-  overflow: hidden;
-}
-.task .progress-bar {
-  width: 0%;
-  height: 100%;
-  text-align: center;
-  background: rgba(255,255,255,0.9);
-  border-radius: 4px;
-  transition: width 1s linear;
-}
-
+/* Day swipe container */
 #daySwipeContainer {
   width: 100%;
   overflow: hidden;
   position: relative;
   touch-action: pan-y;
-  margin-top: 20px;
 }
 
 #daySwipeInner {
@@ -148,20 +63,93 @@ h2 {
 
 .dayPanel {
   min-width: 100%;
-  padding: 10px;
   box-sizing: border-box;
-  position: relative; /* allow arrows to overlay */
+  padding: 10px;
+  position: relative;
 }
 
-/* Arrow styling */
+/* Tasks */
+.task {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  margin: 15px 0;
+  padding: 15px;
+  font-size: 1.3rem;
+  color: #fff;
+  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.task .time {
+  font-size: 1rem;
+  color: #ccc;
+}
+
+/* Glow for active task */
+.task.active {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px var(--glow-color), 0 0 20px var(--glow-color);
+  border: 2px solid var(--glow-color);
+  background: rgba(255,255,255,0.1);
+}
+
+.task.past {
+  opacity: 0.5;
+}
+
+.task.future {
+  opacity: 0.7;
+}
+
+/* Progress Bar */
+.progress-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  margin-top: 8px;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: var(--glow-color);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+/* Task details/hyperlinks */
+#taskDetails {
+  margin-top: 15px;
+  font-size: 1rem;
+  color: #00ffff;
+  text-shadow: 0 0 3px #000;
+  opacity: 0;
+  transition: opacity 0.6s, transform 0.6s;
+}
+
+#taskDetails.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#taskDetails a {
+  color: #ff69b4;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Arrows */
 .swipe-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 2rem;
-  color: rgba(255,255,255,0.6);
+  font-size: 2.5rem;
+  color: rgba(255,255,255,0.7);
   z-index: 5;
-  text-shadow: 0 0 6px rgba(0,0,0,0.7);
+  text-shadow: 0 0 6px #000;
   pointer-events: auto;
   cursor: pointer;
   user-select: none;
@@ -172,167 +160,31 @@ h2 {
 .swipe-arrow.left { left: 5px; }
 .swipe-arrow.right { right: 5px; }
 
-/* --- Current info --- */
-#currentInfo {
-  margin-top: 25px;
-  font-size: 1.5rem;
-  opacity: 0.95;
-  transition: opacity 0.6s ease;
-}
-
 @keyframes pulseArrow {
   0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1);}
   50% { opacity: 1; transform: translateY(-50%) scale(1.1);}
 }
 
-/* --- Loading message --- */
-#loading {
-  margin-top: 10px;
-  font-size: 1.2rem;
-  color: rgba(255,255,255,0.6);
-}
-
-/* --- Music toggle --- */
-#musicToggle {
-  margin-top: 25px;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  background-color: rgba(255,255,255,0.2);
-  color: #fff;
-  transition: background 0.3s ease;
-}
-#musicToggle:hover { background-color: rgba(255,255,255,0.35); }
-
-/* --- Active task glow animation --- */
-@keyframes pulseGlow {
-  0%{box-shadow:0 0 15px var(--glow-color, rgba(255,255,255,0.3));}
-  50%{box-shadow:0 0 40px var(--glow-color, rgba(255,255,255,0.7));}
-  100%{box-shadow:0 0 15px var(--glow-color, rgba(255,255,255,0.3));}
-}
-
-/* --- Next-Up bar --- */
-#nextUp {
+/* Starfield canvas */
+#starfield, #confetti-canvas {
   position: fixed;
-  bottom: -80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.7);
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: 500;
-  padding: 14px 28px;
-  border-radius: 18px;
-  transition: all 0.8s ease-in-out;
-  opacity: 0;
-  z-index: 50;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  top: 0;
+  left: 0;
+  z-index: 0;
 }
-#nextUp.show { bottom: 20px; opacity: 1; }
-#nextUp .emoji{ font-size: 1.6em; }
-#nextUp .label{ font-weight:bold; margin-left:4px; }
 
-/* --- Responsive mobile --- */
-@media(max-width:768px){
-  #timelineContainer {
-    max-height: 70vh;
-    overflow-y: hidden;
-    flex-direction: row;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
+/* Responsive tweaks */
+@media (max-width: 768px) {
   .task {
-    flex: 0 0 70%;
-    scroll-snap-align: center;
-    margin: 0 10px;
-    font-size: 1.3rem;
-    padding: 18px;
+    font-size: 1.1rem;
+    padding: 12px;
   }
-  .task.active { transform: scale(1.4); }
-  h1{ font-size: 2.5rem; }
-  h2{ font-size: 1.5rem; }
-  #currentInfo{ font-size: 1.4rem; margin-top: 20px; } 
-}
 
-/* Name bounce & glow */
-#greeting {
-  font-size: 2rem;
-  color: #ffd700;  /* bright gold */
-  margin-bottom: 10px;
-  text-shadow: 0 0 6px rgba(0,0,0,0.7);
-  font-weight: bold;
-  animation: bounceGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes bounceGlow {
-  0% {
-    transform: translateY(0);
-    text-shadow: 0 0 6px rgba(0,0,0,0.7), 0 0 10px #ffd700;
+  #dateTimeDisplay {
+    font-size: 1rem;
   }
-  50% {
-    transform: translateY(-8px);
-    text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 20px #ffd700;
-  }
-  100% {
-    transform: translateY(0);
-    text-shadow: 0 0 6px rgba(0,0,0,0.7), 0 0 10px #ffd700;
-  }
-}
 
-/* Task details animation */
-#taskDetails {
-  font-size: 1.3rem;
-  margin-top: 10px;
-  color: #ffeaa7; /* soft yellow */
-  text-align: center;
-  word-wrap: break-word;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.6s ease-in-out;
-}
-
-#taskDetails.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-#taskDetails a {
-  color: #ffd700;
-  text-decoration: underline;
-}
-
-/* Sparkle container */
-.sparkle {
-  position: absolute;
-  pointer-events: none;
-  width: 6px;
-  height: 6px;
-  background: #fffacd;
-  border-radius: 50%;
-  opacity: 0;
-  transform: scale(0);
-  animation: sparkleAnim 0.8s ease-out forwards;
-  box-shadow: 0 0 8px #fffacd, 0 0 12px #ffeaa7;
-}
-
-@keyframes sparkleAnim {
-  0% {
-    opacity: 1;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2) translateY(-8px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0) translateY(-16px);
+  .swipe-arrow {
+    font-size: 2rem;
   }
 }
