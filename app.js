@@ -1,26 +1,17 @@
-// Enhanced Glowboard JS
+// Enhanced Glowboard JS with Day-Swipe
+
 let tasksData = [];
 let activeTask = null;
 let nextTask = null;
-let timeline = document.getElementById("timeline");
-// let currentInfo = document.getElementById("currentInfo");
-let nextUpText = document.getElementById("nextUpText");
-let nextUpBar = document.getElementById("nextUp");
+let lastActiveTaskName = "";
 let dateTimeDisplay = document.getElementById("dateTimeDisplay");
 let taskDetailsDiv = document.getElementById("taskDetails");
-let lastActiveTaskName = "";
 
-/*
-let musicBtn = document.getElementById("musicToggle");
-let bgMusic = document.getElementById("bgMusic");
-let isMuted = false;
-musicBtn.addEventListener("click", () => {
-  isMuted = !isMuted;
-  bgMusic.muted = isMuted;
-  musicBtn.textContent = isMuted ? "🔇 Muted" : "🔊 Mute";
-});
-*/
+let currentDayIndex = 0;
+let startX = 0, currentX = 0, isDragging = false;
+const swipeContainer = document.getElementById("daySwipeInner");
 
+// ------------------- Sparkles -------------------
 function spawnSparkles(targetElement, count = 5) {
   const rect = targetElement.getBoundingClientRect();
   for (let i = 0; i < count; i++) {
@@ -29,11 +20,11 @@ function spawnSparkles(targetElement, count = 5) {
     sparkle.style.left = (rect.left + Math.random() * rect.width) + "px";
     sparkle.style.top = (rect.top + Math.random() * rect.height) + "px";
     document.body.appendChild(sparkle);
-    // Remove after animation
     sparkle.addEventListener("animationend", () => sparkle.remove());
   }
 }
 
+// ------------------- Load JSON -------------------
 fetch("tasks.json")
   .then(res => res.json())
   .then(data => {
@@ -42,37 +33,89 @@ fetch("tasks.json")
     initTasks();
   });
 
+// ------------------- Init Tasks & Swipe Panels -------------------
 function initTasks() {
-  let todayName = new Date().toLocaleString('en-us', {weekday: 'long'});
-  let todayData = tasksData.days.find(d => d.day === todayName);
-  document.getElementById("dayTitle").textContent = todayName;
-  if (!todayData) {
-    timeline.innerHTML = "<p>No tasks today!</p>";
-    return;
-  }
+  swipeContainer.innerHTML = "";
 
-  timeline.innerHTML = "";
-  todayData.tasks.forEach((task, i) => {
-    let div = document.createElement("div");
-    div.className = "task";
-    div.style.setProperty("--glow-color", `rgb(${task.rgb})`);
-    div.innerHTML = `<div><strong>${task.task}</strong><br/><span class="time">${task.from} - ${task.to}</span>
-    <div class="progress-container"><div class="progress-bar"></div></div></div>`;
-    timeline.appendChild(div);
-    task.element = div;
-    task.index = i;
+  tasksData.days.forEach((day, dayIdx) => {
+    let panel = document.createElement("div");
+    panel.className = "dayPanel";
+
+    let tasksHtml = day.tasks.map((task, i) => `
+      <div class="task" data-index="${i}" data-from="${task.from}" data-to="${task.to}" style="--glow-color: rgb(${task.rgb})">
+        <div>
+          <strong>${task.task}</strong><br/>
+          <span class="time">${task.from} - ${task.to}</span>
+          <div class="progress-container"><div class="progress-bar"></div></div>
+        </div>
+      </div>
+    `).join("");
+
+    panel.innerHTML = `<h2>${day.day}</h2>${tasksHtml}`;
+    swipeContainer.appendChild(panel);
+
+    // Save reference to task elements
+    day.tasks.forEach((t, idx) => {
+      t.element = panel.querySelectorAll(".task")[idx];
+      t.index = idx;
+    });
   });
 
+  // Show today by default
+  const todayName = new Date().toLocaleString('en-us', { weekday: 'long' });
+  const todayIdx = tasksData.days.findIndex(d => d.day === todayName);
+  currentDayIndex = todayIdx >= 0 ? todayIdx : 0;
+  updateSwipePosition();
+
+  setupSwipe();
   setInterval(updateTasks, 1000);
   updateTasks();
-  //bgMusic.play();
 }
 
+// ------------------- Swipe / Drag Handlers -------------------
+function updateSwipePosition() {
+  swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
+}
+
+function setupSwipe() {
+  swipeContainer.addEventListener("touchstart", startDrag);
+  swipeContainer.addEventListener("touchmove", drag);
+  swipeContainer.addEventListener("touchend", endDrag);
+  swipeContainer.addEventListener("mousedown", startDrag);
+  swipeContainer.addEventListener("mousemove", drag);
+  swipeContainer.addEventListener("mouseup", endDrag);
+  swipeContainer.addEventListener("mouseleave", endDrag);
+}
+
+function startDrag(e) {
+  isDragging = true;
+  startX = e.touches ? e.touches[0].clientX : e.clientX;
+}
+
+function drag(e) {
+  if(!isDragging) return;
+  currentX = e.touches ? e.touches[0].clientX : e.clientX;
+  const dx = currentX - startX;
+  swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth + dx}px)`;
+}
+
+function endDrag(e) {
+  if(!isDragging) return;
+  isDragging = false;
+  const dx = currentX - startX;
+  if(dx > 80 && currentDayIndex > 0) currentDayIndex--;
+  else if(dx < -80 && currentDayIndex < tasksData.days.length - 1) currentDayIndex++;
+  swipeContainer.style.transition = "transform 0.4s ease";
+  updateSwipePosition();
+  setTimeout(() => swipeContainer.style.transition = "", 400);
+}
+
+// ------------------- Update Tasks -------------------
 function updateTasks() {
   let now = new Date();
   dateTimeDisplay.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-  let todayName = now.toLocaleString('en-us', {weekday: 'long'});
-  let todayData = tasksData.days.find(d => d.day === todayName);
+
+  let todayData = tasksData.days[currentDayIndex];
   if (!todayData) return;
 
   let anyActive = false;
@@ -111,73 +154,43 @@ function updateTasks() {
   activeTask = newActive;
   nextTask = newNext;
 
+  // Show active task details and sparkles
   if(activeTask){
-    // currentInfo.textContent = `Active: ${activeTask.task} | Ends at ${activeTask.to}`;
-    // Show details if available
     if(activeTask.details){
       if(activeTask.details.startsWith("http")){
         taskDetailsDiv.innerHTML = `<a href="${activeTask.details}" target="_blank">Open Task Details</a>`;
       } else {
         taskDetailsDiv.textContent = activeTask.details;
       }
-      taskDetailsDiv.classList.add("show"); // slide/fade in
-      
-      // Sparkles around the hyperlink
+      taskDetailsDiv.classList.add("show");
+
       const link = taskDetailsDiv.querySelector("a");
-      if(link) 
-        spawnSparkles(link, 8);
+      if(link) spawnSparkles(link, 8);
     } else {
       taskDetailsDiv.textContent = "";
       taskDetailsDiv.classList.remove("show");
     }
-    document.body.classList.remove("free-time");
-    
+
     if(lastActiveTaskName !== activeTask.task){
-      //playChime("task_chime.mp3");
       confettiBurst();
       lastActiveTaskName = activeTask.task;
     }
 
-    // Scroll active task to center
     activeTask.element.scrollIntoView({behavior:"smooth", inline:"center"});
   } else {
-    currentInfo.textContent = "No active task";
     taskDetailsDiv.textContent = "";
     taskDetailsDiv.classList.remove("show");
-    document.body.classList.add("free-time");
     lastActiveTaskName = "";
-    //playChime("free_chime.mp3");
-  }
-
-  if(nextTask){
-    nextUpText.textContent = `${nextTask.task} (${nextTask.from})`;
-    nextUpBar.classList.add("show");
-  } else {
-    nextUpBar.classList.remove("show");
   }
 }
 
-/*
-// Play chime sound
-let lastChime = null;
-function playChime(file){
-  if(lastChime === file) return;
-  let audio = new Audio(file);
-  audio.volume = 0.5;
-  if(!isMuted) audio.play();
-  lastChime = file;
-}
-*/
-
-// --- Starfield ---
+// ------------------- Starfield -------------------
 let canvas = document.getElementById("starfield");
 let ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 let stars = [];
-for(let i=0;i<150;i++){
-  stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r: Math.random()*1.5});
-}
+for(let i=0;i<150;i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r: Math.random()*1.5});
 function drawStars(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   stars.forEach(s=>{
@@ -190,7 +203,7 @@ function drawStars(){
 }
 drawStars();
 
-// --- Confetti ---
+// ------------------- Confetti -------------------
 let confCanvas = document.getElementById("confetti-canvas");
 let confCtx = confCanvas.getContext("2d");
 confCanvas.width = window.innerWidth;
@@ -227,10 +240,11 @@ function animateConfetti(){
   if(confetti.length>0) requestAnimationFrame(animateConfetti);
 }
 
-// Resize canvas
+// ------------------- Resize Canvas -------------------
 window.addEventListener("resize",()=>{
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   confCanvas.width = window.innerWidth;
   confCanvas.height = window.innerHeight;
+  updateSwipePosition();
 });
