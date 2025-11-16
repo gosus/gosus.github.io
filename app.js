@@ -43,8 +43,8 @@ fetch("tasks.json")
     initTasks();
   })
   .catch(err => {
-    console.error("Error loading tasks.json:", err);
-    document.getElementById("greeting").textContent = err;
+    //console.error("Error loading tasks.json:", err);
+    //document.getElementById("greeting").textContent = err;
   });
 
 // --- Initialize Tasks ---
