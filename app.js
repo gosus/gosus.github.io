@@ -186,7 +186,7 @@ canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
 let stars = [], techParticles = [];
 for(let i=0;i<150;i++) stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5});
-for(let i=0;i<50;i++) techParticles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*4+2,speedX:(Math.random()-0.5)*0.3,speedY:(Math.random()-0.5)*0.3,color:`hsl(${Math.random()*360},80%,60%)`}));
+for(let i=0;i<50;i++) techParticles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*4+2,speedX:(Math.random()-0.5)*0.3,speedY:(Math.random()-0.5)*0.3,color:`hsl(${Math.random()*360},80%,60%)`});
 
 function drawStars(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
