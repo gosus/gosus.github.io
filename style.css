@@ -145,6 +145,20 @@ h2 {
   will-change: transform;
 }
 
+.swipe-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  color: rgba(255,255,255,0.5);
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+  text-shadow: 0 0 6px rgba(0,0,0,0.7);
+  transition: color 0.3s;
+}
+.swipe-arrow.left { left: 10px; pointer-events:auto; cursor:pointer;}
+.swipe-arrow.right { right: 10px; pointer-events:auto; cursor:pointer;}
 .dayPanel {
   min-width: 100%;
   padding: 10px;
