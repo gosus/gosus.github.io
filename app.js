@@ -7,9 +7,12 @@ let lastActiveTaskName = "";
 let dateTimeDisplay = document.getElementById("dateTimeDisplay");
 let taskDetailsDiv = document.getElementById("taskDetails");
 
+// --- SWIPE / LOOPING DAY PANELS ---
 let currentDayIndex = 0;
 let startX = 0, currentX = 0, isDragging = false;
 const swipeContainer = document.getElementById("daySwipeInner");
+const leftArrow = document.querySelector(".swipe-arrow.left");
+const rightArrow = document.querySelector(".swipe-arrow.right");
 
 // ------------------- Sparkles -------------------
 function spawnSparkles(targetElement, count = 5) {
@@ -74,50 +77,67 @@ function initTasks() {
 
 // ------------------- Swipe / Drag Handlers -------------------
 function updateSwipePosition() {
+  //swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
+
+  // Adjust swipe on window resize
+  swipeContainer.style.transition = "none";
   swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
 }
 
+// Setup swipe events
 function setupSwipe() {
   swipeContainer.addEventListener("touchstart", startDrag);
   swipeContainer.addEventListener("touchmove", drag);
   swipeContainer.addEventListener("touchend", endDrag);
+
   swipeContainer.addEventListener("mousedown", startDrag);
   swipeContainer.addEventListener("mousemove", drag);
   swipeContainer.addEventListener("mouseup", endDrag);
   swipeContainer.addEventListener("mouseleave", endDrag);
-}
 
+  // Clickable arrows
+  leftArrow.addEventListener("click", () => {
+    currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
+    slideToCurrentDay();
+  });
+  rightArrow.addEventListener("click", () => {
+    currentDayIndex = (currentDayIndex + 1) % tasksData.days.length;
+    slideToCurrentDay();
+  });
+}
 function startDrag(e) {
   isDragging = true;
   startX = e.touches ? e.touches[0].clientX : e.clientX;
 }
 
 function drag(e) {
-  if(!isDragging) return;
+  if (!isDragging) return;
   currentX = e.touches ? e.touches[0].clientX : e.clientX;
   const dx = currentX - startX;
   swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth + dx}px)`;
 }
 
 function endDrag(e) {
-  if(!isDragging) return;
+  if (!isDragging) return;
   isDragging = false;
   const dx = currentX - startX;
 
-  if(dx > 80) {
-    // Swipe right: previous day
-    currentDayIndex--;
-    if(currentDayIndex < 0) currentDayIndex = tasksData.days.length - 1; // wrap to last day
-  } else if(dx < -80) {
-    // Swipe left: next day
-    currentDayIndex++;
-    if(currentDayIndex >= tasksData.days.length) currentDayIndex = 0; // wrap to first day
+  if (dx > 80) {
+    // swipe right → previous day
+    currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
+  } else if (dx < -80) {
+    // swipe left → next day
+    currentDayIndex = (currentDayIndex + 1) % tasksData.days.length;
   }
 
+  slideToCurrentDay();
+}
+
+function slideToCurrentDay() {
   swipeContainer.style.transition = "transform 0.4s ease";
-  updateSwipePosition();
+  swipeContainer.style.transform = `translateX(${-currentDayIndex * window.innerWidth}px)`;
   setTimeout(() => swipeContainer.style.transition = "", 400);
-  updateTasks(); // update active task for the new day
+  updateTasks(); // refresh active task for visible day
 }
 
 // ------------------- Update Tasks -------------------
