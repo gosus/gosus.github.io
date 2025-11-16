@@ -132,6 +132,24 @@ h2 {
   transition: width 1s linear;
 }
 
+#daySwipeContainer {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  touch-action: pan-y;
+}
+
+#daySwipeInner {
+  display: flex;
+  transition: transform 0.4s ease;
+  will-change: transform;
+}
+
+.dayPanel {
+  min-width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
 /* --- Current info --- */
 #currentInfo {
   margin-top: 25px;
