@@ -103,11 +103,21 @@ function endDrag(e) {
   if(!isDragging) return;
   isDragging = false;
   const dx = currentX - startX;
-  if(dx > 80 && currentDayIndex > 0) currentDayIndex--;
-  else if(dx < -80 && currentDayIndex < tasksData.days.length - 1) currentDayIndex++;
+
+  if(dx > 80) {
+    // Swipe right: previous day
+    currentDayIndex--;
+    if(currentDayIndex < 0) currentDayIndex = tasksData.days.length - 1; // wrap to last day
+  } else if(dx < -80) {
+    // Swipe left: next day
+    currentDayIndex++;
+    if(currentDayIndex >= tasksData.days.length) currentDayIndex = 0; // wrap to first day
+  }
+
   swipeContainer.style.transition = "transform 0.4s ease";
   updateSwipePosition();
   setTimeout(() => swipeContainer.style.transition = "", 400);
+  updateTasks(); // update active task for the new day
 }
 
 // ------------------- Update Tasks -------------------
