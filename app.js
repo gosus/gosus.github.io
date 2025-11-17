@@ -97,14 +97,14 @@ function setupSwipe() {
   swipeContainer.addEventListener("mouseleave", endDrag);
 
   // Clickable arrows
-  leftArrow.addEventListener("click", () => {
-    currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
-    slideToCurrentDay();
-  });
-  rightArrow.addEventListener("click", () => {
-    currentDayIndex = (currentDayIndex + 1) % tasksData.days.length;
-    slideToCurrentDay();
-  });
+  // leftArrow.addEventListener("click", () => {
+  //   currentDayIndex = (currentDayIndex - 1 + tasksData.days.length) % tasksData.days.length;
+  //   slideToCurrentDay();
+  // });
+  // rightArrow.addEventListener("click", () => {
+  //   currentDayIndex = (currentDayIndex + 1) % tasksData.days.length;
+  //   slideToCurrentDay();
+  // });
 }
 
 function startDrag(e) {
