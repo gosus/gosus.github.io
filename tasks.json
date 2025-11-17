@@ -4,7 +4,7 @@
     {
       "day": "Monday",
       "tasks": [
-        { "from": "08:00", "to": "08:30", "task": "School Readiness", "rgb": "176,224,230", "details": "Check bag" },
+        { "from": "07:00", "to": "08:30", "task": "School Readiness", "rgb": "176,224,230", "details": "Check bag" },
         { "from": "17:00", "to": "18:10", "task": "Nat Class", "rgb": "173,216,230" },
         { "from": "18:45", "to": "19:15", "task": "Nat Homework", "rgb": "173,216,230" },
         { "from": "19:15", "to": "19:30", "task": "Chemistry", "rgb": "167,167,167" },
