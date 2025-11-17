@@ -65,6 +65,13 @@ function initTasks() {
       t.element = panel.querySelectorAll(".task")[idx];
       t.notifiedStart = false;
       t.notifiedEnd = false;
+      // Set glow strength by perceived brightness
+      const [r,g,b] = t.rgb.split(",").map(Number);
+      const brightness = Math.sqrt(0.299*r*r + 0.587*g*g + 0.114*b*b);
+      const glow = Math.max(40, Math.min(140, Math.round(brightness)));
+      t.element.style.setProperty("--glow-strength", glow + "px");
+      t.element.style.setProperty("--glow-color", `rgb(${t.rgb})`);
+
     });
   });
 
@@ -168,7 +175,21 @@ function updateTasks() {
       taskDetailsDiv.classList.add("show");
       const link = taskDetailsDiv.querySelector("a"); if(link) spawnSparkles(link,8);
     } else { taskDetailsDiv.textContent = ""; taskDetailsDiv.classList.remove("show"); }
-    if(lastActiveTaskName !== activeTask.task){ confettiBurst(); lastActiveTaskName = activeTask.task; }
+
+    if(lastActiveTaskName !== activeTask.task){
+
+    // Vibration effect on the DOM element
+    activeTask.element.classList.add("just-activated");
+    setTimeout(() => activeTask.element.classList.remove("just-activated"), 400);
+
+    // Confetti (optional)
+    confettiBurst();
+
+    // Play whoosh sound
+    // playWhoosh();
+
+    lastActiveTaskName = activeTask.task;
+}
     activeTask.element.scrollIntoView({behavior:"smooth", inline:"center"});
   } else { taskDetailsDiv.textContent = ""; taskDetailsDiv.classList.remove("show"); lastActiveTaskName = ""; }
 
