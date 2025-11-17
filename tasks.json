@@ -9,7 +9,7 @@
         { "from": "18:45", "to": "19:15", "task": "Nat Homework", "rgb": "173,216,230" },
         { "from": "19:15", "to": "19:30", "task": "Chemistry", "rgb": "167,167,167" },
         { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "128,0,128" },
-        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "1,50,32" }
+        { "from": "20:00", "to": "21:00", "task": "Carnatic Practice", "rgb": "1,50,32" }
       ]
     },
     
