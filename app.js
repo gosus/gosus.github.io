@@ -177,7 +177,7 @@ function updateTasks() {
     let fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fromH, fromM);
     return fromTime > now;
   });
-  nextUpText.textContent = nextTask ? `Next Task: ${nextTask.task} (${nextTask.from})` : "No more tasks";
+  //nextUpText.textContent = nextTask ? `Next Task: ${nextTask.task} (${nextTask.from})` : "No more tasks";
 }
 
 // --- Starfield + Tech Particles ---
