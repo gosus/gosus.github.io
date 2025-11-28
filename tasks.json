@@ -67,6 +67,7 @@
     {
       "day": "Saturday",
       "tasks": [
+        { "from": "11:00", "to": "12:00", "task": "Clean Desk", "rgb": "173,216,230" },
         { "from": "12:00", "to": "12:30", "task": "Nat Homework", "rgb": "173,216,230" },
         { "from": "14:00", "to": "14:30", "task": "Nat: Chemical Reaction", "rgb": "1,50,32" },
         { "from": "17:35", "to": "17:45", "task": "Handwriting", "rgb": "152,251,152" },
