@@ -60,7 +60,8 @@
         { "from": "16:00", "to": "18:45", "task": "Youth Club", "rgb": "255,255,0" },
         { "from": "19:00", "to": "19:30", "task": "Nat: Periodic Table", "rgb": "1,50,32" },
         { "from": "19:30", "to": "20:00", "task": "Reading", "rgb": "128,0,128" },
-        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "1,50,32" }
+        { "from": "20:00", "to": "20:15", "task": "Carnatic Practice", "rgb": "1,50,32" },
+        { "from": "20:15", "to": "20:30", "task": "Guitar Fee Reminder", "rgb": "1,50,32" }
       ]
     },
     
